@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traumzeit - Gute-Nacht-Geschichten</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Traumzeit</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Neue Geschichte erstellen</h2>
+                        <form action="/generate" method="post">
+                            <div class="mb-3">
+                                <label for="child_name" class="form-label">Kindes Name</label>
+                                <input type="text" class="form-control" id="child_name" name="child_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="child_age" class="form-label">Kindes Alter (in Monaten)</label>
+                                <input type="number" class="form-control" id="child_age" name="child_age" min="0" max="96" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="toy_name" class="form-label">Name des Stofftiers</label>
+                                <input type="text" class="form-control" id="toy_name" name="toy_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="toy_description" class="form-label">Beschreibung des Stofftiers</label>
+                                <textarea class="form-control" id="toy_description" name="toy_description" rows="3" required></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="story_style" class="form-label">Geschichtsstil</label>
+                                    <select class="form-select" id="story_style" name="story_style" required>
+                                        <option value="abenteuer">Abenteuer</option>
+                                        <option value="magie">Magie</option>
+                                        <option value="natur">Natur</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="story_length" class="form-label">Geschichtslänge</label>
+                                    <select class="form-select" id="story_length" name="story_length" required>
+                                        <option value="kurz">Kurz</option>
+                                        <option value="mittel">Mittel</option>
+                                        <option value="lang">Lang</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Geschichte generieren</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
