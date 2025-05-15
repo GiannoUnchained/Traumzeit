@@ -24,13 +24,26 @@
                                 <label for="child_age" class="form-label">Kindes Alter (in Monaten)</label>
                                 <input type="number" class="form-control" id="child_age" name="child_age" min="0" max="96" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="toy_name" class="form-label">Name des Stofftiers</label>
-                                <input type="text" class="form-control" id="toy_name" name="toy_name" required>
+                            <div id="toys-container">
+                                <div class="toy-entry mb-3">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Name des Stofftiers</label>
+                                                <input type="text" class="form-control" name="toy_names" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Beschreibung des Stofftiers</label>
+                                                <textarea class="form-control" name="toy_descriptions" rows="2" required></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <label for="toy_description" class="form-label">Beschreibung des Stofftiers</label>
-                                <textarea class="form-control" id="toy_description" name="toy_description" rows="3" required></textarea>
+                                <button type="button" id="add-toy" class="btn btn-outline-secondary">
+                                    + Weitere Stofftiere hinzufügen
+                                </button>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -60,5 +73,51 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('toys-container');
+            const addButton = document.getElementById('add-toy');
+            let toyCount = 1;
+
+            addButton.addEventListener('click', function() {
+                toyCount++;
+                const newToy = document.createElement('div');
+                newToy.className = 'toy-entry mb-3';
+                newToy.innerHTML = `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Stofftier #${toyCount}</h5>
+                                <button type="button" class="btn-close remove-toy" aria-label="Entfernen"></button>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Name des Stofftiers</label>
+                                <input type="text" class="form-control" name="toy_names" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Beschreibung des Stofftiers</label>
+                                <textarea class="form-control" name="toy_descriptions" rows="2" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newToy);
+            });
+
+            // Event delegation for remove buttons
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-toy') || e.target.closest('.remove-toy')) {
+                    const toyEntry = e.target.closest('.toy-entry');
+                    if (toyEntry && document.querySelectorAll('.toy-entry').length > 1) {
+                        toyEntry.remove();
+                        // Update toy numbers
+                        document.querySelectorAll('.toy-entry .card-title').forEach((title, index) => {
+                            title.textContent = `Stofftier #${index + 1}`;
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

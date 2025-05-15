@@ -14,12 +14,34 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title text-center mb-4">{{ child_name }} und {{ toy_name }}</h2>
+                        <h2 class="card-title text-center mb-4">
+                            {% if toys and toys|length > 1 %}
+                                {{ child_name }} und {{ toys|length }} Freunde
+                            {% elif toys and toys|length == 1 %}
+                                {{ child_name }} und {{ toys[0].name }}
+                            {% else %}
+                                {{ child_name }}'s Geschichte
+                            {% endif %}
+                        </h2>
+                        {% if toys and toys|length > 0 %}
+                        <div class="toys-list mb-4">
+                            <h5 class="text-center mb-3">Mit dabei waren:</h5>
+                            <div class="d-flex flex-wrap justify-content-center gap-3">
+                                {% for toy in toys %}
+                                <div class="card" style="width: 10rem;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">{{ toy.name if toy.name else 'Unbenannt' }}</h6>
+                                        {% if toy.description %}
+                                        <p class="card-text small">{{ toy.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="story-content">
                             {{ story }}
-                        </div>
-                        <div class="text-center mt-4">
-                            <img src="{{ image_url }}" class="img-fluid rounded mb-4" alt="Illustration zur Geschichte">
                         </div>
                         <div class="text-center">
                             <a href="/" class="btn btn-secondary">Neue Geschichte erstellen</a>

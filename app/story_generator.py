@@ -7,6 +7,7 @@ load_dotenv()
 
 class StoryGenerator:
     def __init__(self):
+        # Einfache Initialisierung ohne zusätzliche Parameter
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     def generate_story(self, data: Dict[str, Any]) -> str:
@@ -15,10 +16,28 @@ class StoryGenerator:
         months = data["child_age"] % 12
         age_description = f"{years} Jahre und {months} Monate alt"
 
+        # Handle single toy case for backward compatibility
+        if 'toy_name' in data and 'toy_description' in data:
+            toys_text = f"ein Stofftier namens {data['toy_name']}, das {data['toy_description']} ist"
+            end_text = f"während {data['toy_name']} wach blieb und über ihn/sie Wache hielt."
+        # Handle multiple toys
+        elif 'toys' in data and data['toys']:
+            if len(data['toys']) == 1:
+                toy = data['toys'][0]
+                toys_text = f"ein Stofftier namens {toy['name']}, das {toy['description']} ist"
+                end_text = f"während {toy['name']} wach blieb und über ihn/sie Wache hielt."
+            else:
+                toy_names = [toy['name'] for toy in data['toys']]
+                toy_descriptions = [f"{toy['name']}, das {toy['description']}" for toy in data['toys']]
+                toys_text = ", ".join(toy_descriptions[:-1]) + " und " + toy_descriptions[-1] if len(toy_descriptions) > 1 else toy_descriptions[0]
+                end_text = f"während {toy_names[0]} wach blieb und über ihn/sie Wache hielt."
+        else:
+            toys_text = "liebgewonnene Stofftiere"
+            end_text = "während die Stofftiere Wache hielten."
+
         prompt = f"""
         Erstelle eine kindgerechte Gute-Nacht-Geschichte für ein Kind namens {data['child_name']},
-        das {age_description} ist. Das Kind hat ein Stofftier namens {data['toy_name']},
-        das {data['toy_description']} ist.
+        das {age_description} ist. {data['child_name']} hat {toys_text}.
 
         Die Geschichte sollte:
         1. Im Stil von {data['story_style']} sein
@@ -29,8 +48,7 @@ class StoryGenerator:
         6. Keine Gewalt oder Angst erregende Inhalte enthalten
 
         Beginne die Geschichte mit "Einmal in einer schönen Nacht..."
-        und ende mit "...und so schlief {data['child_name']} ein, während {data['toy_name']}
-        wach blieb und über ihn/ihre Wache hielt."
+        und ende mit "...und so schlief {data['child_name']} ein, {end_text}"
         """
 
         try:
@@ -51,51 +69,12 @@ class StoryGenerator:
             )
             return response.choices[0].message.content
         except Exception as e:
-            return f"Es ist ein Fehler beim Generieren der Geschichte aufgetreten: {str(e)}"
-
-    def generate_image_prompt(self, story: str) -> str:
-        """Generiert eine Beschreibung für ein passendes Bild zur Geschichte"""
-        try:
-            prompt = f"""
-            Basierend auf folgender Geschichte, erstelle eine kurze Beschreibung für ein passendes Bild:
-            {story}
-
-            Die Beschreibung sollte:
-            1. Die wichtigsten Charaktere und Szenen beschreiben
-            2. Farben und Stimmung berücksichtigen
-            3. Kindgerecht und nicht zu komplex sein
-            4. Einen ruhigen, friedlichen Moment einfangen
-            """
-
-            response = self.client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Du erstellst kurze, präzise Beschreibungen für Bilder."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                temperature=0.5,
-                max_tokens=200
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"Ein Baumhaus im Wald bei Nacht, beleuchtet von Mondlicht. {data['child_name']} sitzt darin und liest ein Buch über Abenteuer. {data['toy_name']} sitzt neben ihm/ihr und schaut neugierig zu."
-
-    def generate_image_url(self, prompt: str) -> str:
-        """Generiert ein Bild basierend auf der Beschreibung"""
-        try:
-            response = self.client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                size="1024x1024",
-                quality="standard",
-                style="vivid"
-            )
-            return response.data[0].url
-        except Exception as e:
-            return "https://via.placeholder.com/1024x1024?text=Bild+konnte+nicht+erstellt+werden"
+            print(f"Fehler bei der Geschichte-Generierung: {str(e)}")
+            # Handle case where toy data might be in different formats
+            toy_name = ""
+            if 'toy_name' in data:
+                toy_name = data['toy_name']
+            elif 'toys' in data and data['toys']:
+                toy_name = data['toys'][0]['name'] if 'name' in data['toys'][0] else "einem Stofftier"
+                
+            return f"Einmal in einer schönen Nacht... träumte {data['child_name']} zusammen mit {toy_name} von einem wunderbaren Abenteuer. Sie erlebten viele spannende Dinge und hatten viel Spaß. Am Ende des Abenteuers waren alle müde und glücklich. Und so schlief {data['child_name']} ein, während {toy_name} wach blieb und über ihn/sie Wache hielt."
